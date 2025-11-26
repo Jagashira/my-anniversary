@@ -67,5 +67,55 @@ def main():
     print(f"requirements.txt: {req_path}")
 
 
+def generate_pdfs(folder, quality_label, output_name=None, progress_callback=None):
+
+    quality_map = {
+        "high": 90,
+        "standard": 70,
+        "light": 45
+    }
+    jpeg_quality = quality_map[quality_label]
+
+    images = load_images(folder)
+
+    if output_name:
+        outname = output_name
+    else:
+        outname = os.path.basename(folder.rstrip("/"))
+
+    outdir = os.path.join("dist", outname)
+    os.makedirs(outdir, exist_ok=True)
+
+    # 進捗: 10%
+    if progress_callback:
+        progress_callback(10)
+
+    # ---- A4版 ----
+    a4_pdf_path = os.path.join(outdir, "album_A4.pdf")
+    pdf_a4 = canvas.Canvas(a4_pdf_path)
+    export_pdf_a4(pdf_a4, images, jpeg_quality)
+    pdf_a4.save()
+
+    # 進捗: 60%
+    if progress_callback:
+        progress_callback(60)
+
+    # ---- 原寸版 ----
+    orig_pdf_path = os.path.join(outdir, "album_original.pdf")
+    pdf_orig = canvas.Canvas(orig_pdf_path)
+    export_pdf_original(pdf_orig, images, jpeg_quality)
+    pdf_orig.save()
+
+    # requirements.txt 更新
+    write_requirements()
+
+    # 完了
+    if progress_callback:
+        progress_callback(100)
+
+    return outdir
+
+
+
 if __name__ == "__main__":
     main()
