@@ -21,3 +21,17 @@ def write_requirements():
         f.write("\n".join(lines))
 
     print(f"requirements.txt を作成しました → {path}")
+
+
+from io import BytesIO
+
+def compress_image(img, quality):
+    """
+    Pillow Image → 圧縮JPEG(Memory buffer)
+    quality: 1〜95
+    """
+    buf = BytesIO()
+    img.save(buf, format="JPEG", quality=quality, optimize=True)
+    buf.seek(0)
+    return buf
+
